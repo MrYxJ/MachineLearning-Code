@@ -9,3 +9,5 @@ Python 实现机器学习里的算法
 李航《机器学习实战》
 
 吴恩达 mooc 上《machine learning》
+
+[gitbook笔记](https://yoyoyohamapi.gitbooks.io/mit-ml/content/)
