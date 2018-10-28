@@ -1,6 +1,8 @@
 # MachineLearning-Code
 Python 实现机器学习里的算法
 # 目前完成
+- [线性回归 LinearRegression]()  [博客]()
+- [逻辑回归LogicRegression]()
 - [决策树(ID3)](https://github.com/MrYxJ/MachineLearning-Code/tree/master/DecisionTree) [博客](https://blog.csdn.net/yexiaohhjk/article/details/83218514)
 
 # 主要参考
