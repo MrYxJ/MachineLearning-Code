@@ -1,22 +1,26 @@
-# coding: utf-8
-# neural_network/nn.py
+#coding:utf-8
+#coder:MrYx
 import numpy as np
-from scipy.optimize import minimize
-from scipy import stats
 
 def sigmoid(z):
-    """sigmoid
     """
-    return 1 / (1 + np.exp(-z))
+    sigmoid激活函数
+    :param z:
+    :return:
+    """
+    return 1 /( 1 + np.exp(-z))
 
 def sigmoidDerivative(a):
-    """sigmoid求导
     """
-    return np.multiply(a, (1-a))
+    sigmoid激活函数求导
+    :param a:
+    :return:
+    """
+    return np.multiply(a , (1 - a))
 
 def initThetas(hiddenNum, unitNum, inputSize, classNum, epsilon):
-    """初始化权值矩阵
-
+    """
+    初始化权值矩阵
     Args:
         hiddenNum 隐层数目
         unitNum 每个隐层的神经元数目
@@ -34,13 +38,14 @@ def initThetas(hiddenNum, unitNum, inputSize, classNum, epsilon):
             break
         nextUnit = units[idx + 1]
         # 考虑偏置
-        Theta = np.random.rand(nextUnit, unit + 1) * 2 * epsilon - epsilon
+        Theta = np.random.rand(nextUnit, unit + 1)  #随机生成一个大小为 nextUnit X unit大小的矩阵
+        print('next:',nextUnit,' unit:', unit+1)
+        print('theta:',Theta)
         Thetas.append(Theta)
     return Thetas
 
 def computeCost(Thetas, y, theLambda, X=None, a=None):
     """计算代价
-
     Args:
         Thetas 权值矩阵序列
         X 样本
@@ -52,14 +57,15 @@ def computeCost(Thetas, y, theLambda, X=None, a=None):
     m = y.shape[0]
     if a is None:
         a = fp(Thetas, X)
+    #损失函数用的交叉熵模型
     error = -np.sum(np.multiply(y.T,np.log(a[-1]))+np.multiply((1-y).T, np.log(1-a[-1])))
-    # 正规化参数
+    # 正规化参数3
     reg = -np.sum([np.sum(Theta[:, 1:]) for Theta in Thetas])
     return (1.0 / m) * error + (1.0 / (2 * m)) * theLambda * reg
 
-def gradientCheck(Thetas,X,y,theLambda):
-    """梯度校验
-
+def gradientCheck(Thetas, X, y, theLambda):
+    """
+    梯度校验
     Args:
         Thetas 权值矩阵
         X 样本
@@ -81,22 +87,48 @@ def gradientCheck(Thetas,X,y,theLambda):
     gradApprox = np.zeros(DVec.shape)
     ThetaVec = unroll(Thetas)
     shapes = [Theta.shape for Theta in Thetas]
-    for i,item in enumerate(ThetaVec):
+    for i, item in enumerate(ThetaVec):
         ThetaVec[i] = item - epsilon
-        JMinus = computeCost(roll(ThetaVec,shapes),y,theLambda,X=X)
+        JMinus = computeCost(roll(ThetaVec, shapes), y, theLambda, X=X)
         ThetaVec[i] = item + epsilon
-        JPlus = computeCost(roll(ThetaVec,shapes),y,theLambda,X=X)
-        gradApprox[i] = (JPlus-JMinus) / (2*epsilon)
+        JPlus = computeCost(roll(ThetaVec, shapes), y, theLambda, X=X)
+        gradApprox[i] = (JPlus - JMinus) / (2 * epsilon)
     # 用欧氏距离表示近似程度
     diff = np.linalg.norm(gradApprox - DVec)
-    if diff < 1e-2:
-        return True
-    else:
-        return False
+    if diff < 1e-2: return True
+    else: return False
+
+def unroll(matrixes):
+    """
+    参数展开
+    :param matrix:
+    :return:
+    """
+    vec = []
+    for matrix in matrixes:
+        vector = matrix.reshape(1, -1)[0]
+        vec = np.concatenate((vec, vector))
+    return vec
+
+def roll(vector , shapes):
+    """
+    参数恢复
+    :param vector:
+    :param shapes:
+    :return:
+    """
+    matrixes = []
+    begin = 0
+    for shape in shapes:
+        end = begin + shape[0] * shape[1]
+        matrix = vector[begin:end].reshape(shape)
+        begin = end
+        matrixes.append(matrix)
+    return matrixes
 
 def adjustLabels(y):
-    """校正分类标签
-
+    """
+    校正分类标签
     Args:
         y 标签集
     Returns:
@@ -119,106 +151,60 @@ def adjustLabels(y):
         return yAdjusted
     return y
 
-
-def unroll(matrixes):
-    """参数展开
-
-    Args:
-        matrixes 矩阵
-    Return:
-        vec 向量
-    """
-    vec = []
-    for matrix in matrixes:
-        vector = matrix.reshape(1, -1)[0]
-        vec = np.concatenate((vec, vector))
-    return vec
-
-
-def roll(vector, shapes):
-    """参数恢复
-
-    Args:
-        vector 向量
-        shapes shape list
-    Returns:
-        matrixes 恢复的矩阵序列
-    """
-    matrixes = []
-    begin = 0
-    for shape in shapes:
-        end = begin + shape[0] * shape[1]
-        matrix = vector[begin:end].reshape(shape)
-        begin = end
-        matrixes.append(matrix)
-    return matrixes
-
-
 def fp(Thetas, X):
-    """前向反馈过程
-
-    Args:
-        Thetas 权值矩阵
-        X 输入样本
-    Returns:
-        a 各层激活向量
+    """
+    前向传播过程
+    :param Thetas:
+    :param :
+    :return:
     """
     layers = range(len(Thetas) + 1)
     layerNum = len(layers)
-    # 激活向量序列
+    #激活向量序列
     a = range(layerNum)
     # 前向传播计算各层输出
     for l in layers:
         if l == 0:
-            a[l] = X.T
-        else:
+            a[l] = X.T #第一层输入层
+        else :
             z = Thetas[l - 1] * a[l - 1]
             a[l] = sigmoid(z)
-        # 除输出层外，需要添加偏置
-        if l != layerNum - 1:
+        if l != layerNum -1: #除了最后一层，都要加一个偏置项
             a[l] = np.concatenate((np.ones((1, a[l].shape[1])), a[l]))
-    return a
 
-
-def bp(Thetas, a, y, theLambda):
-    """反向传播过程
-
-    Args:
-        a 激活值
-        y 标签
-    Returns:
-        D 权值梯度
+def bp(Thetas, a , y, theLambda):
+    """
+    反向传播过程
+    :param Thetas:
+    :param a:
+    :param y:
+    :param theLambda:
+    :return:
     """
     m = y.shape[0]
     layers = range(len(Thetas) + 1)
     layerNum = len(layers)
     d = range(len(layers))
-    delta = [np.zeros(Theta.shape) for Theta in Thetas]
+    delta = [np.zeros(Thetas.shape) for Theta in Thetas]
     for l in layers[::-1]:
-        if l == 0:
-            # 输入层不计算误差
-            break
-        if l == layerNum - 1:
-            # 输出层误差
-            d[l] = a[l] - y.T
-        else:
-            # 忽略偏置
-            d[l] = np.multiply((Thetas[l][:,1:].T * d[l + 1]), sigmoidDerivative(a[l][1:, :]))
+        if l == 0 : break
+        if l ==  layerNum -1 : d[l-1] = a[l] - y.T
+        #忽略偏置
+        else : d[l-1] = np.multiply((Thetas[l][:,1:].T * d[l + 1]), sigmoidDerivative(a[l][1:, :]))
     for l in layers[0:layerNum - 1]:
-        delta[l] = d[l + 1] * (a[l].T)
+        delta[l] = d[l+1] * (a[l].T)
     D = [np.zeros(Theta.shape) for Theta in Thetas]
     for l in range(len(Thetas)):
         Theta = Thetas[l]
         # 偏置更新增量
         D[l][:, 0] = (1.0 / m) * (delta[l][0:, 0].reshape(1, -1))
         # 权值更新增量
-        D[l][:, 1:] = (1.0 / m) * (delta[l][0:, 1:] +
-                                   theLambda * Theta[:, 1:])
+        D[l][:, 1:] = (1.0 / m) * (delta[l][0:, 1:] + theLambda * Theta[:, 1:])
     return D
 
 def updateThetas(m, Thetas, D, alpha, theLambda):
-    """更新权值
-
+    """
+    更新权值
     Args:
         m 样本数
         Thetas 各层权值矩阵
@@ -232,10 +218,9 @@ def updateThetas(m, Thetas, D, alpha, theLambda):
         Thetas[l] = Thetas[l] - alpha * D[l]
     return Thetas
 
-
 def gradientDescent(Thetas, X, y, alpha, theLambda):
-    """梯度下降
-
+    """
+    梯度下降
     Args:
         X 样本
         y 标签
@@ -252,7 +237,7 @@ def gradientDescent(Thetas, X, y, alpha, theLambda):
     # 反向传播计算梯度增量
     D = bp(Thetas, a, y, theLambda)
     # 计算预测代价
-    J = computeCost(Thetas,y,theLambda,a=a)
+    J = computeCost(Thetas,y,theLambda,a = a)
     # 更新权值
     Thetas = updateThetas(m, Thetas, D, alpha, theLambda)
     if np.isnan(J):
@@ -260,8 +245,8 @@ def gradientDescent(Thetas, X, y, alpha, theLambda):
     return J, Thetas
 
 def train(X, y, Thetas=None, hiddenNum=0, unitNum=5, epsilon=1, alpha=1, theLambda=0, precision=0.01, maxIters=50):
-    """网络训练
-
+    """
+    网络训练
     Args:
         X 训练样本
         y 标签集
@@ -277,7 +262,9 @@ def train(X, y, Thetas=None, hiddenNum=0, unitNum=5, epsilon=1, alpha=1, theLamb
     # 样本数，特征数
     m, n = X.shape
     # 矫正标签集
+    print('before y: ', y)
     y = adjustLabels(y)
+    print('after y: ',y)
     classNum = y.shape[1]
     # 初始化Theta
     if Thetas is None:
@@ -289,12 +276,11 @@ def train(X, y, Thetas=None, hiddenNum=0, unitNum=5, epsilon=1, alpha=1, theLamb
             epsilon=epsilon
         )
     # 先进性梯度校验
-    print 'Doing Gradient Checking....'
+    print('Doing Gradient Checking......')
     checked = gradientCheck(Thetas, X, y, theLambda)
     if checked:
         for i in range(maxIters):
-            error, Thetas = gradientDescent(
-                Thetas, X, y, alpha=alpha, theLambda=theLambda)
+            error, Thetas = gradientDescent(Thetas, X, y, alpha=alpha, theLambda=theLambda)
             if error < precision:
                 break
             if error == np.inf:
@@ -307,10 +293,10 @@ def train(X, y, Thetas=None, hiddenNum=0, unitNum=5, epsilon=1, alpha=1, theLamb
             'error': error,
             'Thetas': Thetas,
             'iters': i,
-            'success': error
+            'success': success
         }
     else:
-        print 'Error: Gradient Cheching Failed!!!'
+        print('Error: Gradient Cheching Failed!!!')
         return {
             'error': None,
             'Thetas': None,
@@ -329,3 +315,6 @@ def predict(X, Thetas):
     """
     a = fp(Thetas,X)
     return a[-1]
+
+if __name__ == '__main__':
+    pass
