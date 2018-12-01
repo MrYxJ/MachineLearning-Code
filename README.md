@@ -13,4 +13,4 @@ Python 实现机器学习里的算法
 
 吴恩达 mooc 上《machine learning》
 
-[gitbook笔记](https://yoyoyohamapi.gitbooks.io/mit-ml/content/)
+[吴晓军大佬的gitbook笔记](https://yoyoyohamapi.gitbooks.io/mit-ml/content/)
