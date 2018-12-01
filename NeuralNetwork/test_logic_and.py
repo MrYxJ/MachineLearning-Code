@@ -7,7 +7,7 @@
 @time: 2018/12/1 17:47
 '''
 import numpy as np
-import coursera.NeuralNetwork.neural_network as nn
+import NeuralNetwork.neural_network as nn
 
 def test():
     data = np.mat([
@@ -20,6 +20,7 @@ def test():
     X = data[:,0:2]
     Y = data[:,2]
     res = nn.train(X, Y, hiddenNum=0, alpha=10, maxIters=5000, precision=0.01)
+    print(res)
 
 if __name__ == '__main__':
      test()

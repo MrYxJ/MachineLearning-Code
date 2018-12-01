@@ -33,15 +33,18 @@ def initThetas(hiddenNum, unitNum, inputSize, classNum, epsilon):
     hiddens = [unitNum for i in range(hiddenNum)]
     units = [inputSize] + hiddens + [classNum]
     Thetas = []
+
     for idx, unit in enumerate(units):
         if idx == len(units) - 1:
             break
         nextUnit = units[idx + 1]
         # 考虑偏置
-        Theta = np.random.rand(nextUnit, unit + 1)  #随机生成一个大小为 nextUnit X unit大小的矩阵
-        print('next:',nextUnit,' unit:', unit+1)
-        print('theta:',Theta)
+        Theta = np.random.rand(nextUnit, unit + 1) *2 *epsilon - epsilon #随机生成一个大小为 nextUnit X unit大小的矩阵
+
+        # print('next:',nextUnit,' unit:', unit+1)
+        # print('theta:',Theta)
         Thetas.append(Theta)
+
     return Thetas
 
 def computeCost(Thetas, y, theLambda, X=None, a=None):
@@ -77,6 +80,7 @@ def gradientCheck(Thetas, X, y, theLambda):
     m, n = X.shape
     # 前向传播计算各个神经元的激活值
     a = fp(Thetas, X)
+    #print('a::',a)
     # 反向传播计算梯度增量
     D = bp(Thetas, a, y, theLambda)
     # 计算预测代价
@@ -161,7 +165,8 @@ def fp(Thetas, X):
     layers = range(len(Thetas) + 1)
     layerNum = len(layers)
     #激活向量序列
-    a = range(layerNum)
+    a = [0 for i in  range(layerNum)]
+
     # 前向传播计算各层输出
     for l in layers:
         if l == 0:
@@ -171,6 +176,7 @@ def fp(Thetas, X):
             a[l] = sigmoid(z)
         if l != layerNum -1: #除了最后一层，都要加一个偏置项
             a[l] = np.concatenate((np.ones((1, a[l].shape[1])), a[l]))
+    return a
 
 def bp(Thetas, a , y, theLambda):
     """
@@ -184,13 +190,13 @@ def bp(Thetas, a , y, theLambda):
     m = y.shape[0]
     layers = range(len(Thetas) + 1)
     layerNum = len(layers)
-    d = range(len(layers))
-    delta = [np.zeros(Thetas.shape) for Theta in Thetas]
+    d = [0 for i in range(len(layers))]
+    delta = [np.zeros(Theta.shape) for Theta in Thetas]
     for l in layers[::-1]:
         if l == 0 : break
-        if l ==  layerNum -1 : d[l-1] = a[l] - y.T
+        if l ==  layerNum -1 : d[l] = a[l] - y.T
         #忽略偏置
-        else : d[l-1] = np.multiply((Thetas[l][:,1:].T * d[l + 1]), sigmoidDerivative(a[l][1:, :]))
+        else : d[l] = np.multiply((Thetas[l][:,1:].T * d[l + 1]), sigmoidDerivative(a[l][1:, :]))
     for l in layers[0:layerNum - 1]:
         delta[l] = d[l+1] * (a[l].T)
     D = [np.zeros(Theta.shape) for Theta in Thetas]
@@ -262,9 +268,9 @@ def train(X, y, Thetas=None, hiddenNum=0, unitNum=5, epsilon=1, alpha=1, theLamb
     # 样本数，特征数
     m, n = X.shape
     # 矫正标签集
-    print('before y: ', y)
+    #print('before y: ', y)
     y = adjustLabels(y)
-    print('after y: ',y)
+    #print('after y: ',y)
     classNum = y.shape[1]
     # 初始化Theta
     if Thetas is None:
@@ -280,6 +286,7 @@ def train(X, y, Thetas=None, hiddenNum=0, unitNum=5, epsilon=1, alpha=1, theLamb
     checked = gradientCheck(Thetas, X, y, theLambda)
     if checked:
         for i in range(maxIters):
+            print('error:',error)
             error, Thetas = gradientDescent(Thetas, X, y, alpha=alpha, theLambda=theLambda)
             if error < precision:
                 break
@@ -317,4 +324,4 @@ def predict(X, Thetas):
     return a[-1]
 
 if __name__ == '__main__':
-    pass
+    print([1,2,3] + [4,5,6])

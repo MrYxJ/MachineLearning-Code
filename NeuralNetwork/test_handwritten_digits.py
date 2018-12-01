@@ -2,7 +2,7 @@
 # neural_network/test_handwritten_digits.py
 """手写字符集
 """
-import nn
+import NeuralNetwork.neural_network as nn
 import numpy as np
 from sklearn import datasets
 from scipy.io import loadmat
@@ -22,4 +22,5 @@ X = np.mat(data['X'])
 y = np.mat(data['y'])
 
 res = nn.train(X,y,hiddenNum=1,unitNum=25,Thetas=Thetas, precision = 0.5)
-print 'Error is: %.4f'%res['error']
+print('Error is: %.4f'%res['error'])
+print(res)
