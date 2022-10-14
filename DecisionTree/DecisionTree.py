@@ -3,7 +3,6 @@
 
 '''
 @author: MrYx
-@contact: 529674242@qq.com
 @author github: https://github.com/MrYxJ
 @file: UseDecisionTree.py
 @time: 18-10-20 下午1:50
